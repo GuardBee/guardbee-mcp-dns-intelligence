@@ -110,6 +110,79 @@ AWS S3, Azure App Service, GitHub Pages, Heroku, Netlify, Vercel, Cloudflare Pag
 
 ---
 
+## CLI — CI/CD Entegrasyonu
+
+MCP server moduna ek olarak doğrudan CLI olarak da kullanılabilir:
+
+```bash
+# Tam DNS + e-posta güvenliği kontrolü
+npx @guardbee/mcp-dns-intelligence check example.com
+
+# Sadece high ve üstünde başarısız ol
+npx @guardbee/mcp-dns-intelligence check example.com --fail-on=high
+
+# Subdomain taraması — dangling CNAME varsa exit 1
+npx @guardbee/mcp-dns-intelligence subdomains example.com
+
+# Yüksek concurrency ile subdomain tarama
+npx @guardbee/mcp-dns-intelligence subdomains example.com --concurrency=50
+
+# JSON çıktı
+npx @guardbee/mcp-dns-intelligence check example.com --format=json
+```
+
+**Exit kodları:** `0` = sorun yok · `1` = threshold üstü bulgu / dangling subdomain · `2` = hata
+
+### GitHub Actions — DNS Güvenlik Denetimi
+
+```yaml
+name: DNS Security Check
+on:
+  schedule:
+    - cron: "0 6 * * *"  # Her gün 06:00
+  workflow_dispatch:
+
+jobs:
+  dns-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check DNS configuration
+        run: npx @guardbee/mcp-dns-intelligence check ${{ vars.DOMAIN }} --fail-on=high
+
+      - name: Scan for dangling subdomains
+        run: npx @guardbee/mcp-dns-intelligence subdomains ${{ vars.DOMAIN }}
+```
+
+### GitLab CI
+
+```yaml
+dns-security:
+  image: node:20
+  script:
+    - npx @guardbee/mcp-dns-intelligence check $DOMAIN --fail-on=high
+    - npx @guardbee/mcp-dns-intelligence subdomains $DOMAIN
+  only:
+    - schedules
+```
+
+### Deployment Öncesi E-posta Güvenliği Kontrolü
+
+```yaml
+- name: Verify email security records
+  run: |
+    npx @guardbee/mcp-dns-intelligence check ${{ vars.DOMAIN }} \
+      --fail-on=high \
+      --format=json | tee dns-report.json
+
+- name: Upload DNS report
+  uses: actions/upload-artifact@v4
+  with:
+    name: dns-security-report
+    path: dns-report.json
+```
+
+---
+
 ## Geliştirme
 
 ```bash

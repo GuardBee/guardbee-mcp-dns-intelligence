@@ -1,6 +1,6 @@
 {
   "name": "@guardbee/mcp-dns-intelligence",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "MCP server that enumerates DNS records, detects misconfigurations, and identifies dangling subdomains",
   "type": "module",
   "bin": {
@@ -14,7 +14,10 @@
       "types": "./dist/index.d.ts"
     }
   },
-  "files": ["dist", "README.md"],
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
@@ -30,7 +33,17 @@
     "typescript": "^5.0.0",
     "vitest": "^2.0.0"
   },
-  "keywords": ["mcp", "security", "dns", "recon", "subdomain", "spf", "dmarc", "guardbee", "devtools"],
+  "keywords": [
+    "mcp",
+    "security",
+    "dns",
+    "recon",
+    "subdomain",
+    "spf",
+    "dmarc",
+    "guardbee",
+    "devtools"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",
