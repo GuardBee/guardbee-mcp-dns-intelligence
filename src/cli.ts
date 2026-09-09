@@ -2,6 +2,18 @@
 import { startServer } from "./server.js";
 import { enumerateDomain, enumerateSubdomains, formatDnsReport, formatSubdomainReport } from "./dns.js";
 import type { Finding } from "./dns.js";
+import { buildSarif } from "./sarif.js";
+import { readFileSync } from "fs";
+import { resolve, dirname } from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+function getVersion(): string {
+  try {
+    const pkg = JSON.parse(readFileSync(resolve(__dirname, "../package.json"), "utf8")) as { version: string };
+    return pkg.version;
+  } catch { return "0.0.0"; }
+}
 
 // ── Severity helpers ───────────────────────────────────────────────────────────
 
@@ -48,6 +60,8 @@ async function runCheck(rawArgs: string[]): Promise<void> {
 
   if (format === "json") {
     console.log(JSON.stringify(result, null, 2));
+  } else if (format === "sarif") {
+    console.log(JSON.stringify(buildSarif(getVersion(), domain, result.findings), null, 2));
   } else {
     console.log(formatDnsReport(result));
   }
