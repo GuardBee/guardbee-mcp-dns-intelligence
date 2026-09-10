@@ -1,0 +1,10 @@
+# guardbee.yml — GuardBee project configuration
+# Place this file in your project root.
+# CLI flags always override file settings.
+
+dns-intelligence:
+  fail-on: high          # critical | high | medium | low
+  concurrency: 20        # parallel subdomain probes
+  domains:               # domains to check when none given on CLI
+    - example.com
+    - staging.example.com

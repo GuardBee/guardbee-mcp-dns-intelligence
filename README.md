@@ -133,6 +133,21 @@ npx @guardbee/mcp-dns-intelligence check example.com --format=json
 
 **Exit kodları:** `0` = sorun yok · `1` = threshold üstü bulgu / dangling subdomain · `2` = hata
 
+### guardbee.yml ile Konfigürasyon
+
+Proje kökünde `guardbee.yml` oluşturarak CLI flag'lerini kalıcı hale getirebilirsiniz. CLI flag'leri her zaman dosya ayarlarını geçersiz kılar.
+
+```yaml
+dns-intelligence:
+  fail-on: high          # critical | high | medium | low
+  concurrency: 20        # paralel subdomain probe sayısı
+  domains:               # CLI'da domain verilmezse bu liste kullanılır
+    - example.com
+    - staging.example.com
+```
+
+Örnek dosya için [`guardbee.example.yml`](guardbee.example.yml) dosyasına bakın.
+
 ### GitHub Actions — DNS Güvenlik Denetimi
 
 ```yaml
