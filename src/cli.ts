@@ -3,6 +3,7 @@ import { startServer } from "./server.js";
 import { enumerateDomain, enumerateSubdomains, formatDnsReport, formatSubdomainReport } from "./dns.js";
 import type { Finding } from "./dns.js";
 import { buildSarif } from "./sarif.js";
+import { loadConfig } from "./config.js";
 import { readFileSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
@@ -48,11 +49,16 @@ function parseArgs(args: string[]): { positionals: string[]; failOn: string; for
 // ── CLI commands ───────────────────────────────────────────────────────────────
 
 async function runCheck(rawArgs: string[]): Promise<void> {
-  const { positionals, failOn, format } = parseArgs(rawArgs);
-  const domain = positionals[0];
+  const parsed = parseArgs(rawArgs);
+  const cfg = loadConfig(process.cwd(), {
+    ...(parsed.failOn !== "high" ? { failOn: parsed.failOn } : {}),
+  });
+  const domain = parsed.positionals[0] ?? cfg.domains[0];
+  const { failOn, format } = { failOn: cfg.failOn, format: parsed.format };
 
   if (!domain) {
     console.error("Usage: guardbee-dns-intelligence check <domain> [--fail-on=high] [--format=text|json]");
+    console.error("       Or set domains in guardbee.yml under dns-intelligence.domains");
     process.exit(2);
   }
 
@@ -70,11 +76,16 @@ async function runCheck(rawArgs: string[]): Promise<void> {
 }
 
 async function runSubdomains(rawArgs: string[]): Promise<void> {
-  const { positionals, format, concurrency } = parseArgs(rawArgs);
-  const domain = positionals[0];
+  const parsed = parseArgs(rawArgs);
+  const cfg = loadConfig(process.cwd(), {
+    ...(parsed.concurrency !== 20 ? { concurrency: parsed.concurrency } : {}),
+  });
+  const domain = parsed.positionals[0] ?? cfg.domains[0];
+  const { format, concurrency } = { format: parsed.format, concurrency: cfg.concurrency };
 
   if (!domain) {
     console.error("Usage: guardbee-dns-intelligence subdomains <domain> [--format=text|json] [--concurrency=20]");
+    console.error("       Or set domains in guardbee.yml under dns-intelligence.domains");
     process.exit(2);
   }
 
